@@ -1,9 +1,9 @@
 /**
  * WashNearMe — High-Fidelity Interactive Prototype State & Interaction Engine
- * Clean, modern client-side state machine with realistic demo data
+ * Supports Multi-Service Selection, Vehicle Sizing, 7-Day Date Picker & 30-min Slots
  */
 
-// Global State
+// Global Application State
 const state = {
   currentRole: 'customer', // 'customer' or 'owner'
   currentScreen: 'screen-home',
@@ -12,8 +12,7 @@ const state = {
   // Active Booking Configuration
   booking: {
     shopId: 'sparkle',
-    serviceId: 'body',
-    serviceName: 'Body Wash',
+    selectedServiceIds: ['body'], // Array supporting multiple simultaneous services!
     vehicleId: 'sedan',
     vehicleName: 'Sedan',
     vehicleIcon: '🚘',
@@ -33,11 +32,11 @@ const state = {
       {
         id: 'CW10001',
         shopName: 'Sparkle Auto Care',
-        service: 'Body Wash',
+        service: 'Body Wash + Interior Cleaning',
         vehicle: 'Sedan',
         date: 'September 29, 2026',
         time: '10:30 AM – 11:00 AM',
-        price: '₹349',
+        price: '₹648',
         status: 'Confirmed',
         location: '560037, Bengaluru'
       }
@@ -74,7 +73,7 @@ const state = {
     { time: '09:30 – 10:00', status: 'confirmed', customer: 'Rahul', vehicle: 'Sedan', service: 'Body Wash', price: '₹349' },
     { time: '10:00 – 10:30', status: 'confirmed', customer: 'Arun', vehicle: 'SUV', service: 'Interior Cleaning', price: '₹420' },
     { time: '10:30 – 11:00', status: 'available', customer: null, vehicle: null, service: null },
-    { time: '11:00 – 11:30', status: 'confirmed', customer: 'Vivek', vehicle: 'Hatchback', service: 'Body Wash', price: '₹299' },
+    { time: '11:00 – 11:30', status: 'confirmed', customer: 'Vivek', vehicle: 'Hatchback', service: 'Body Wash + Underbody', price: '₹548' },
     { time: '11:30 – 12:00', status: 'in-progress', customer: 'Rohan', vehicle: 'Compact SUV', service: 'Underbody Cleaning', price: '₹299' },
     { time: '12:00 – 12:30', status: 'confirmed', customer: 'Priya', vehicle: 'Sedan', service: 'Body Wash', price: '₹349' },
     { time: '14:00 – 14:30', status: 'available', customer: null, vehicle: null, service: null },
@@ -86,13 +85,13 @@ const state = {
     today: [
       { name: 'Rahul', vehicle: 'Sedan', service: 'Body Wash', date: 'Sep 29', time: '09:30–10:00', price: '₹349', status: 'Confirmed' },
       { name: 'Arun', vehicle: 'SUV', service: 'Interior Cleaning', date: 'Sep 29', time: '10:00–10:30', price: '₹420', status: 'Confirmed' },
-      { name: 'Vivek', vehicle: 'Hatchback', service: 'Body Wash', date: 'Sep 29', time: '11:00–11:30', price: '₹299', status: 'Confirmed' },
+      { name: 'Vivek', vehicle: 'Hatchback', service: 'Body Wash + Underbody', date: 'Sep 29', time: '11:00–11:30', price: '₹548', status: 'Confirmed' },
       { name: 'Rohan', vehicle: 'Compact SUV', service: 'Underbody Cleaning', date: 'Sep 29', time: '11:30–12:00', price: '₹299', status: 'In-Bay' },
       { name: 'Priya', vehicle: 'Sedan', service: 'Body Wash', date: 'Sep 29', time: '12:00–12:30', price: '₹349', status: 'Confirmed' },
       { name: 'Vikram', vehicle: 'Compact SUV', service: 'Interior Cleaning', date: 'Sep 29', time: '14:30–15:00', price: '₹350', status: 'Confirmed' }
     ],
     upcoming: [
-      { name: 'Aditya S.', vehicle: 'Sedan', service: 'Body Wash', date: 'Sep 30', time: '10:00–10:30', price: '₹349', status: 'Scheduled' },
+      { name: 'Aditya S.', vehicle: 'Sedan', service: 'Body Wash + Interior', date: 'Sep 30', time: '10:00–10:30', price: '₹648', status: 'Scheduled' },
       { name: 'Manish T.', vehicle: 'SUV', service: 'Underbody Cleaning', date: 'Sep 30', time: '11:30–12:00', price: '₹370', status: 'Scheduled' },
       { name: 'Kavita M.', vehicle: 'Hatchback', service: 'Interior Cleaning', date: 'Oct 01', time: '09:30–10:00', price: '₹299', status: 'Scheduled' },
       { name: 'Sameer J.', vehicle: 'Sedan', service: 'Body Wash', date: 'Oct 02', time: '16:00–16:30', price: '₹349', status: 'Scheduled' }
@@ -207,7 +206,7 @@ const SHOPS = {
 // Vehicles List
 const VEHICLES = [
   { id: 'hatchback', name: 'Hatchback / Compact', icon: '🚗', examples: 'Swift, i20, Tiago, Baleno', multiplier: 1.0 },
-  { id: 'sedan', name: 'Sedan', icon: '🚘', examples: 'City, Verna, Ciaz, Slavia', multiplier: 1.0 }, // Base matches ₹349
+  { id: 'sedan', name: 'Sedan', icon: '🚘', examples: 'City, Verna, Ciaz, Slavia', multiplier: 1.0 },
   { id: 'compact_suv', name: 'Compact SUV', icon: '🚙', examples: 'Brezza, Nexon, Sonet, Venue', multiplier: 1.1 },
   { id: 'suv', name: 'SUV', icon: '🚙', examples: 'Creta, Harrier, XUV700, Safari', multiplier: 1.25 }
 ];
@@ -240,6 +239,81 @@ const TIME_SLOTS = [
   { time: '16:30 – 17:00', status: 'available' },
   { time: '17:00 – 17:30', status: 'available' }
 ];
+
+/* ==========================================================================
+   MULTI-SERVICE SELECTION HELPERS
+   ========================================================================== */
+function getSelectedServices() {
+  const shop = SHOPS[state.booking.shopId] || SHOPS.sparkle;
+  const ids = state.booking.selectedServiceIds || ['body'];
+  const services = shop.services.filter(s => ids.includes(s.id));
+  return services.length > 0 ? services : [shop.services[0]];
+}
+
+function getServicesSummaryName() {
+  const selected = getSelectedServices();
+  if (selected.length === 0) return 'No service selected';
+  if (selected.length === 1) return selected[0].name;
+  return selected.map(s => s.name).join(' + ');
+}
+
+function recalculatePrice() {
+  const selected = getSelectedServices();
+  const baseSum = selected.reduce((sum, s) => sum + s.price, 0);
+  
+  const vehicle = VEHICLES.find(v => v.id === state.booking.vehicleId);
+  const multiplier = vehicle ? (vehicle.multiplier || 1.0) : 1.0;
+  
+  state.booking.basePrice = baseSum;
+  state.booking.finalPrice = Math.round(baseSum * multiplier);
+}
+
+function setSingleService(svcId) {
+  state.booking.selectedServiceIds = [svcId];
+  recalculatePrice();
+}
+
+function toggleServiceSelection(svcId) {
+  const shop = SHOPS[state.booking.shopId] || SHOPS.sparkle;
+  let ids = [...(state.booking.selectedServiceIds || [])];
+
+  if (ids.includes(svcId)) {
+    if (ids.length <= 1) {
+      showToast('⚠️ At least one service must remain selected');
+      return;
+    }
+    ids = ids.filter(id => id !== svcId);
+    showToast('Removed service from package');
+  } else {
+    ids.push(svcId);
+    const addedSvc = shop.services.find(s => s.id === svcId);
+    showToast(`Added: ${addedSvc ? addedSvc.name : svcId}`);
+  }
+
+  state.booking.selectedServiceIds = ids;
+  recalculatePrice();
+
+  if (state.currentScreen === 'screen-details') {
+    renderShopDetails(state.selectedShopId);
+  }
+  if (state.currentScreen === 'screen-booking') {
+    renderBookingStep(state.currentBookingStep);
+  }
+}
+
+function selectAllServices() {
+  const shop = SHOPS[state.booking.shopId] || SHOPS.sparkle;
+  state.booking.selectedServiceIds = shop.services.map(s => s.id);
+  recalculatePrice();
+  
+  if (state.currentScreen === 'screen-details') {
+    renderShopDetails(state.selectedShopId);
+  }
+  if (state.currentScreen === 'screen-booking') {
+    renderBookingStep(state.currentBookingStep);
+  }
+  showToast(`All ${shop.services.length} services added to package!`);
+}
 
 /* ==========================================================================
    ROUTING & SCREEN SWITCHER
@@ -411,19 +485,20 @@ function viewShopDetails(shopId) {
   state.booking.shopId = shopId;
   const shop = SHOPS[shopId];
   if (shop && shop.services.length > 0) {
-    // Select first service by default or preserve selected
-    const existing = shop.services.find(s => s.id === state.booking.serviceId);
-    const chosen = existing || shop.services[0];
-    state.booking.serviceId = chosen.id;
-    state.booking.serviceName = chosen.name;
-    state.booking.basePrice = chosen.price;
+    // If none of the currently selected services exist in this shop, default to first service
+    const validIds = (state.booking.selectedServiceIds || []).filter(id => shop.services.some(s => s.id === id));
+    if (validIds.length === 0) {
+      state.booking.selectedServiceIds = [shop.services[0].id];
+    } else {
+      state.booking.selectedServiceIds = validIds;
+    }
     recalculatePrice();
   }
   navigateTo('screen-details');
 }
 
 /* ==========================================================================
-   SCREEN 3: CAR WASH DETAILS RENDERER
+   SCREEN 3: CAR WASH DETAILS RENDERER (MULTI-SELECT SUPPORT)
    ========================================================================== */
 function renderShopDetails(shopId) {
   const shop = SHOPS[shopId] || SHOPS.sparkle;
@@ -436,26 +511,55 @@ function renderShopDetails(shopId) {
   document.getElementById('shopDetailDistance').textContent = shop.distance;
   document.getElementById('shopDetailTagline').textContent = `"${shop.tagline}"`;
 
-  // Services List
+  // Services List with MULTI-SELECT checkboxes & tags
   const servicesContainer = document.getElementById('shopDetailServicesList');
-  servicesContainer.innerHTML = shop.services.map(svc => {
-    const isSelected = (svc.id === state.booking.serviceId);
-    return `
-      <div class="service-detail-card ${isSelected ? 'selected' : ''}" onclick="selectDetailService('${svc.id}')">
-        <div class="service-thumb">${svc.icon}</div>
-        <div class="service-detail-body">
-          <div class="service-detail-name">${svc.name}</div>
-          <div class="service-detail-desc">${svc.desc}</div>
-          <div class="service-detail-bottom">
-            <span class="service-from-price">From ₹${svc.price}</span>
-            <button class="btn-select-chip">${isSelected ? 'Selected ✓' : 'Select'}</button>
+  const selectedIds = state.booking.selectedServiceIds || ['body'];
+  const allSelected = shop.services.every(s => selectedIds.includes(s.id));
+
+  servicesContainer.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; background: #f0f9ff; border: 1px solid #bae6fd; padding: 8px 12px; border-radius: 12px;">
+      <span style="font-size: 0.74rem; font-weight: 700; color: #0369a1; display: flex; align-items: center; gap: 5px;">
+        <span>✨</span> Multi-Select Enabled (Pick 1, 2, or all 3)
+      </span>
+      <button onclick="selectAllServices()" style="background: white; border: 1px solid #0284c7; color: #0284c7; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; cursor: pointer;">
+        ${allSelected ? 'All Selected ✓' : '+ Select All'}
+      </button>
+    </div>
+    ${shop.services.map(svc => {
+      const isSelected = selectedIds.includes(svc.id);
+      return `
+        <div class="service-detail-card ${isSelected ? 'selected' : ''}" onclick="toggleServiceSelection('${svc.id}')">
+          <div class="service-checkbox-box ${isSelected ? 'checked' : ''}">
+            ${isSelected ? '✓' : ''}
+          </div>
+          <div class="service-thumb">${svc.icon}</div>
+          <div class="service-detail-body">
+            <div class="service-detail-name">${svc.name}</div>
+            <div class="service-detail-desc">${svc.desc}</div>
+            <div class="service-detail-bottom">
+              <span class="service-from-price">From ₹${svc.price}</span>
+              <button class="btn-select-chip ${isSelected ? 'active-chip' : ''}">
+                ${isSelected ? '✓ In Package' : '+ Add Service'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('')}
+  `;
 
-  // Reviews
+  // Update sticky bottom action bar on Screen 3
+  const count = selectedIds.length;
+  const detailBarPrice = document.getElementById('detailBarPrice');
+  if (detailBarPrice) {
+    detailBarPrice.innerHTML = `${count} Service${count > 1 ? 's' : ''} Selected • ₹${state.booking.finalPrice}`;
+  }
+  const btnBookNow = document.getElementById('btnDetailBookNow');
+  if (btnBookNow) {
+    btnBookNow.textContent = `Book ${count} Service${count > 1 ? 's' : ''} →`;
+  }
+
+  // Reviews List
   const reviewsContainer = document.getElementById('shopDetailReviewsList');
   reviewsContainer.innerHTML = shop.reviews.map(r => `
     <div class="review-item">
@@ -469,19 +573,6 @@ function renderShopDetails(shopId) {
       <p class="review-comment">"${r.text}"</p>
     </div>
   `).join('');
-}
-
-function selectDetailService(svcId) {
-  const shop = SHOPS[state.selectedShopId];
-  const service = shop.services.find(s => s.id === svcId);
-  if (service) {
-    state.booking.serviceId = service.id;
-    state.booking.serviceName = service.name;
-    state.booking.basePrice = service.price;
-    recalculatePrice();
-    renderShopDetails(state.selectedShopId);
-    showToast(`Selected: ${service.name}`);
-  }
 }
 
 /* ==========================================================================
@@ -521,24 +612,42 @@ function renderBookingStep(stepNum) {
   const shop = SHOPS[state.booking.shopId] || SHOPS.sparkle;
 
   if (stepNum === 1) {
-    // Step 1: Services
+    // Step 1: Multi-Services Selection
     const container = document.getElementById('step1ServicesContainer');
-    container.innerHTML = shop.services.map(s => {
-      const isSelected = (s.id === state.booking.serviceId);
-      return `
-        <div class="service-detail-card ${isSelected ? 'selected' : ''}" onclick="pickService('${s.id}')">
-          <div class="service-thumb">${s.icon}</div>
-          <div class="service-detail-body">
-            <div class="service-detail-name">${s.name}</div>
-            <div class="service-detail-desc">${s.desc}</div>
-            <div class="service-detail-bottom">
-              <span class="service-from-price">₹${s.price}</span>
-              <button class="btn-select-chip">${isSelected ? 'Selected ✓' : 'Select'}</button>
+    const selectedIds = state.booking.selectedServiceIds || ['body'];
+    const allSelected = shop.services.every(s => selectedIds.includes(s.id));
+
+    container.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; background: #f0f9ff; border: 1px solid #bae6fd; padding: 8px 12px; border-radius: 12px;">
+        <span style="font-size: 0.74rem; font-weight: 700; color: #0369a1; display: flex; align-items: center; gap: 5px;">
+          <span>✓</span> Multi-Select Active: Pick 1 or more
+        </span>
+        <button onclick="selectAllServices()" style="background: white; border: 1px solid #0284c7; color: #0284c7; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; cursor: pointer;">
+          ${allSelected ? 'All Selected ✓' : '+ Select All'}
+        </button>
+      </div>
+      ${shop.services.map(s => {
+        const isSelected = selectedIds.includes(s.id);
+        return `
+          <div class="service-detail-card ${isSelected ? 'selected' : ''}" onclick="toggleServiceSelection('${s.id}')">
+            <div class="service-checkbox-box ${isSelected ? 'checked' : ''}">
+              ${isSelected ? '✓' : ''}
+            </div>
+            <div class="service-thumb">${s.icon}</div>
+            <div class="service-detail-body">
+              <div class="service-detail-name">${s.name}</div>
+              <div class="service-detail-desc">${s.desc}</div>
+              <div class="service-detail-bottom">
+                <span class="service-from-price">₹${s.price}</span>
+                <button class="btn-select-chip ${isSelected ? 'active-chip' : ''}">
+                  ${isSelected ? '✓ In Package' : '+ Add Service'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-    }).join('');
+        `;
+      }).join('')}
+    `;
   } else if (stepNum === 2) {
     // Step 2: Vehicles
     const container = document.getElementById('step2VehiclesContainer');
@@ -595,19 +704,6 @@ function renderBookingStep(stepNum) {
   }
 }
 
-function pickService(svcId) {
-  const shop = SHOPS[state.booking.shopId];
-  const service = shop.services.find(s => s.id === svcId);
-  if (service) {
-    state.booking.serviceId = service.id;
-    state.booking.serviceName = service.name;
-    state.booking.basePrice = service.price;
-    recalculatePrice();
-    renderBookingStep(1);
-    showToast(`Service selected: ${service.name}`);
-  }
-}
-
 function pickVehicle(vehId) {
   const vehicle = VEHICLES.find(v => v.id === vehId);
   if (vehicle) {
@@ -637,7 +733,6 @@ function handleBookingNext() {
   if (state.currentBookingStep < 4) {
     renderBookingStep(state.currentBookingStep + 1);
   } else {
-    // Proceed to Screen 5: Booking Summary
     navigateTo('screen-summary');
   }
 }
@@ -650,59 +745,70 @@ function handleBookingPrev() {
   }
 }
 
-function recalculatePrice() {
-  // Sedan base calculation
-  let price = state.booking.basePrice || 349;
-  const vehicle = VEHICLES.find(v => v.id === state.booking.vehicleId);
-  if (vehicle && vehicle.id === 'suv') {
-    price = Math.round(price * 1.2);
-  } else if (vehicle && vehicle.id === 'compact_suv') {
-    price = Math.round(price * 1.1);
-  }
-  state.booking.finalPrice = price;
-}
-
 function updateLiveBookingHUD() {
   const shop = SHOPS[state.booking.shopId] || SHOPS.sparkle;
   const dateObj = DATES[state.booking.dateIndex];
+  const servicesText = getServicesSummaryName();
 
   document.getElementById('hudShopName').textContent = shop.name;
   document.getElementById('hudConfigText').textContent = 
-    `${state.booking.serviceName} • ${state.booking.vehicleName} • ${dateObj.day}, ${dateObj.num} ${dateObj.month} • ${state.booking.timeSlot}`;
+    `${servicesText} • ${state.booking.vehicleName} • ${dateObj.day}, ${dateObj.num} ${dateObj.month} • ${state.booking.timeSlot}`;
   document.getElementById('hudPriceVal').textContent = `₹${state.booking.finalPrice}`;
 }
 
 /* ==========================================================================
-   SCREEN 5: BOOKING SUMMARY RENDERER
+   SCREEN 5: BOOKING SUMMARY RENDERER (ITEMIZED MULTI-SERVICES)
    ========================================================================== */
 function renderSummaryScreen() {
   const shop = SHOPS[state.booking.shopId] || SHOPS.sparkle;
   const dateObj = DATES[state.booking.dateIndex];
+  const selected = getSelectedServices();
+  const vehicle = VEHICLES.find(v => v.id === state.booking.vehicleId);
+  const multiplier = vehicle ? (vehicle.multiplier || 1.0) : 1.0;
 
   document.getElementById('sumShopName').textContent = shop.name;
   document.getElementById('sumShopAddress').textContent = shop.address;
-  document.getElementById('sumServiceName').textContent = state.booking.serviceName;
+  
+  // Itemize all selected services
+  const itemizedBox = document.getElementById('sumServicesItemized');
+  if (itemizedBox) {
+    itemizedBox.innerHTML = selected.map(s => {
+      const price = Math.round(s.price * multiplier);
+      return `
+        <div class="summary-service-row">
+          <span>${s.icon} ${s.name}</span>
+          <span style="font-weight: 700; color: #0f172a;">₹${price}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
   document.getElementById('sumVehicleName').textContent = `${state.booking.vehicleIcon} ${state.booking.vehicleName}`;
   document.getElementById('sumDate').textContent = `${dateObj.day}, ${dateObj.month} ${dateObj.num}, 2026`;
   document.getElementById('sumTimeSlot').textContent = state.booking.timeSlot;
   document.getElementById('sumServicePrice').textContent = `₹${state.booking.finalPrice}`;
   document.getElementById('sumTotalPrice').textContent = `₹${state.booking.finalPrice}`;
+
+  const btnConfirm = document.getElementById('btnConfirmBooking');
+  if (btnConfirm) {
+    btnConfirm.textContent = `Confirm Booking (₹${state.booking.finalPrice}) ✓`;
+  }
 }
 
 /* ==========================================================================
    SCREEN 6: BOOKING CONFIRMATION RENDERER
    ========================================================================== */
 function confirmCurrentBooking() {
-  // Generate a mock booking ID
   const newBookingId = 'CW' + Math.floor(10000 + Math.random() * 90000);
   state.booking.bookingId = newBookingId;
   const shop = SHOPS[state.booking.shopId] || SHOPS.sparkle;
+  const servicesText = getServicesSummaryName();
 
   // Add to customer's upcoming bookings
   const newBookingItem = {
     id: newBookingId,
     shopName: shop.name,
-    service: state.booking.serviceName,
+    service: servicesText,
     vehicle: state.booking.vehicleName,
     date: state.booking.dateString,
     time: state.booking.timeSlot,
@@ -712,13 +818,13 @@ function confirmCurrentBooking() {
   };
   state.customerBookings.upcoming.unshift(newBookingItem);
 
-  // If Sparkle Auto Care was booked, update owner's today schedule for demo realism
+  // If Sparkle Auto Care was booked, update owner's today schedule
   const matchingSlot = state.ownerSchedule.find(s => s.time.startsWith('10:30'));
   if (matchingSlot && matchingSlot.status === 'available') {
     matchingSlot.status = 'confirmed';
     matchingSlot.customer = 'Sankar (You)';
     matchingSlot.vehicle = state.booking.vehicleName;
-    matchingSlot.service = state.booking.serviceName;
+    matchingSlot.service = servicesText;
     matchingSlot.price = `₹${state.booking.finalPrice}`;
   }
 
@@ -728,10 +834,20 @@ function confirmCurrentBooking() {
 
 function renderConfirmationScreen() {
   const shop = SHOPS[state.booking.shopId] || SHOPS.sparkle;
+  const selected = getSelectedServices();
 
   document.getElementById('confBookingId').textContent = `Booking ID: ${state.booking.bookingId}`;
   document.getElementById('confShopName').textContent = shop.name;
-  document.getElementById('confServiceName').textContent = state.booking.serviceName;
+
+  const confServicesList = document.getElementById('confServicesList');
+  if (confServicesList) {
+    confServicesList.innerHTML = selected.map(s => `
+      <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; font-size: 0.82rem; font-weight: 700; color: #0f172a; margin-bottom: 2px;">
+        <span>${s.icon}</span> ${s.name}
+      </div>
+    `).join('');
+  }
+
   document.getElementById('confVehicleName').textContent = `${state.booking.vehicleIcon} ${state.booking.vehicleName}`;
   document.getElementById('confDate').textContent = state.booking.dateString;
   document.getElementById('confTimeSlot').textContent = state.booking.timeSlot;
@@ -742,7 +858,6 @@ function renderConfirmationScreen() {
    SCREEN 7: MY BOOKINGS RENDERER
    ========================================================================== */
 function renderCustomerBookings(activeTab = 'upcoming') {
-  // Tab UI toggle
   document.querySelectorAll('.booking-tab-btn').forEach(btn => {
     btn.classList.remove('active');
   });
@@ -782,7 +897,7 @@ function renderCustomerBookings(activeTab = 'upcoming') {
       </div>
 
       <div class="booking-pill-details">
-        <span class="booking-info-pill">🧽 ${item.service}</span>
+        <span class="booking-info-pill">✨ ${item.service}</span>
         <span class="booking-info-pill">🚘 ${item.vehicle}</span>
         <span class="booking-info-pill">📅 ${item.date}</span>
         <span class="booking-info-pill">⏰ ${item.time}</span>
@@ -915,6 +1030,9 @@ function setDeviceMode(mode) {
    INITIALIZATION & EVENT LISTENERS
    ========================================================================== */
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize price calculation
+  recalculatePrice();
+
   // Render listings on startup
   renderShopsList('all');
 

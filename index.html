@@ -133,17 +133,17 @@
               <span class="section-link" onclick="navigateTo('screen-listing')">View All</span>
             </div>
             <div class="services-cards-grid">
-              <div class="service-quick-card" onclick="viewShopDetails('sparkle'); selectDetailService('interior'); startBookingFlow(1);">
+              <div class="service-quick-card" onclick="viewShopDetails('sparkle'); setSingleService('interior'); startBookingFlow(1);">
                 <div class="service-icon-box">🧽</div>
                 <div class="service-card-title">Interior Cleaning</div>
                 <div class="service-card-price">From ₹299</div>
               </div>
-              <div class="service-quick-card" onclick="viewShopDetails('sparkle'); selectDetailService('body'); startBookingFlow(1);">
+              <div class="service-quick-card" onclick="viewShopDetails('sparkle'); setSingleService('body'); startBookingFlow(1);">
                 <div class="service-icon-box">🚿</div>
                 <div class="service-card-title">Body Wash</div>
                 <div class="service-card-price">From ₹249</div>
               </div>
-              <div class="service-quick-card" onclick="viewShopDetails('sparkle'); selectDetailService('underbody'); startBookingFlow(1);">
+              <div class="service-quick-card" onclick="viewShopDetails('sparkle'); setSingleService('underbody'); startBookingFlow(1);">
                 <div class="service-icon-box">✨</div>
                 <div class="service-card-title">Underbody Cleaning</div>
                 <div class="service-card-price">From ₹249</div>
@@ -269,10 +269,10 @@
           <!-- Sticky Bottom CTA -->
           <div class="sticky-bottom-action">
             <div style="flex: 1;">
-              <span class="price-label">Selected Service</span>
-              <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a;" id="detailBarPrice">From ₹349</div>
+              <span class="price-label">Selected Services</span>
+              <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a;" id="detailBarPrice">1 Service Selected • ₹349</div>
             </div>
-            <button class="btn-primary-cta" style="width: auto; padding: 12px 28px;" onclick="startBookingFlow(1)">
+            <button class="btn-primary-cta" id="btnDetailBookNow" style="width: auto; padding: 12px 28px;" onclick="startBookingFlow(1)">
               Book Now →
             </button>
           </div>
@@ -315,8 +315,8 @@
             <!-- STEP 1: SELECT SERVICE -->
             <div class="booking-step-content" id="bookingStepSection1">
               <div class="step-instruction-box">
-                <h3>Step 1 — Select Service</h3>
-                <p>Choose the car detailing or wash package for your vehicle.</p>
+                <h3>Step 1 — Select Services</h3>
+                <p>Choose one or more wash and detailing services for your package.</p>
               </div>
               <div class="services-selection-list" id="step1ServicesContainer">
                 <!-- Dynamically rendered -->
@@ -406,9 +406,11 @@
               </div>
 
               <div class="summary-rows">
-                <div class="summary-row">
-                  <span class="summary-label">Service</span>
-                  <span class="summary-val" id="sumServiceName">Body Wash</span>
+                <div class="summary-row" style="align-items: flex-start;">
+                  <span class="summary-label" style="margin-top: 4px;">Selected Services</span>
+                  <div style="flex: 1; text-align: right;" id="sumServicesItemized">
+                    <span class="summary-val" id="sumServiceName">Body Wash</span>
+                  </div>
                 </div>
                 <div class="summary-row">
                   <span class="summary-label">Vehicle</span>
@@ -426,7 +428,7 @@
                 <div class="summary-divider"></div>
 
                 <div class="summary-row">
-                  <span class="summary-label">Wash Package Rate</span>
+                  <span class="summary-label">Subtotal Rate</span>
                   <span class="summary-val" id="sumServicePrice">₹349</span>
                 </div>
                 <div class="summary-row">
@@ -473,9 +475,11 @@
               </div>
 
               <div class="summary-rows">
-                <div class="summary-row">
-                  <span class="summary-label">Service</span>
-                  <span class="summary-val" id="confServiceName">Body Wash</span>
+                <div class="summary-row" style="align-items: flex-start;">
+                  <span class="summary-label" style="margin-top: 2px;">Services</span>
+                  <div style="flex: 1; text-align: right;" id="confServicesList">
+                    <span class="summary-val" id="confServiceName">Body Wash</span>
+                  </div>
                 </div>
                 <div class="summary-row">
                   <span class="summary-label">Vehicle</span>
