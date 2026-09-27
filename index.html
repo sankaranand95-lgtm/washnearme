@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WashNearMe — Car Wash Booking Prototype | 560037 Bengaluru</title>
+  <meta name="description" content="High-fidelity interactive prototype for WashNearMe, a modern car wash booking application in Bengaluru 560037.">
+  
+  <!-- Modern Clean Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       TOP PROTOTYPE CONTROL BAR (Toolbar for Client Demo Review)
+       ========================================================================== -->
+  <header class="prototype-control-bar" id="prototypeControlBar">
+    <div class="proto-brand">
+      <span class="proto-badge">Prototype Demo</span>
+      <span class="proto-title">
+        <span>🚗</span> WashNearMe
+      </span>
+    </div>
+
+    <div class="proto-controls">
+      <!-- Device Viewport Toggle -->
+      <div class="proto-btn-group">
+        <button id="btnModeMobile" class="proto-btn active" onclick="setDeviceMode('mobile')">
+          📱 390px Mobile
+        </button>
+        <button id="btnModeDesktop" class="proto-btn" onclick="setDeviceMode('desktop')">
+          💻 Desktop View
+        </button>
+      </div>
+
+      <!-- Quick Screen Jump Selector -->
+      <select id="jumpSelect" class="proto-jump-select" aria-label="Jump to prototype screen">
+        <optgroup label="Customer Journey">
+          <option value="screen-home">Screen 1 — Landing / Home</option>
+          <option value="screen-listing">Screen 2 — Car Wash Listing</option>
+          <option value="screen-details">Screen 3 — Car Wash Details</option>
+          <option value="screen-booking">Screen 4 — Booking Selection</option>
+          <option value="screen-summary">Screen 5 — Booking Summary</option>
+          <option value="screen-confirmation">Screen 6 — Booking Confirmation</option>
+          <option value="screen-bookings">Screen 7 — My Bookings</option>
+          <option value="screen-profile">Screen 8 — Customer Profile</option>
+        </optgroup>
+        <optgroup label="Owner / Partner Journey">
+          <option value="screen-owner-login">Screen 9 — Partner Login</option>
+          <option value="screen-owner-dashboard">Screen 10 — Owner Dashboard</option>
+          <option value="screen-owner-bookings">Screen 11 — Owner Bookings</option>
+        </optgroup>
+      </select>
+
+      <!-- Quick Role Switcher -->
+      <button class="proto-btn" style="background: rgba(255, 255, 255, 0.12); color: #fff;" onclick="navigateTo(state.currentScreen.startsWith('screen-owner') ? 'screen-home' : 'screen-owner-login')">
+        🔄 Switch to <span id="lblSwitchRole">Owner Demo</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       VIEWPORT WRAPPER (Mobile 390px Frame or Responsive Container)
+       ========================================================================== -->
+  <main class="viewport-wrapper mode-mobile" id="viewportWrapper">
+    <div class="phone-frame" id="phoneFrame">
+      
+      <!-- Phone Bezel / Dynamic Island / Status Bar -->
+      <div class="phone-notch-bar">
+        <span>9:41</span>
+        <div class="notch-island">
+          <div class="notch-lens"></div>
+        </div>
+        <div class="notch-status-icons">
+          <span>5G</span>
+          <span>100%</span>
+        </div>
+      </div>
+
+      <!-- Scrollable App Content Container -->
+      <div class="app-viewport" id="appViewport">
+
+        <!-- GLOBAL APP HEADER (Visible in Customer screens) -->
+        <div class="app-header" id="appMainHeader">
+          <div class="brand-wrapper" onclick="navigateTo('screen-home')">
+            <div class="brand-icon">💦</div>
+            <div class="brand-name">Wash<span>NearMe</span></div>
+          </div>
+
+          <div class="header-location-pill" onclick="navigateTo('screen-listing')" title="Change Service Location">
+            <span>📍</span>
+            <span>560037, BLR</span>
+            <span style="font-size: 0.65rem; color: #94a3b8;">▼</span>
+          </div>
+
+          <div class="header-actions">
+            <button class="btn-owner-switch" onclick="navigateTo('screen-owner-login')" title="Switch to Car Wash Owner Demo">
+              🏪 Partner
+            </button>
+          </div>
+        </div>
+
+        <!-- ====================================================================
+             SCREEN 1: LANDING / HOME
+             ==================================================================== -->
+        <section class="screen active" id="screen-home">
+          <!-- Hero Section -->
+          <div class="home-hero-card">
+            <div class="hero-img-box">
+              <img src="assets/sparkle.jpg" alt="Foam Car Wash Detailing" id="homeHeroImg" />
+              <div class="hero-gradient-overlay"></div>
+            </div>
+            <div class="hero-content">
+              <div class="hero-location-tag">
+                <span>📍</span> Servicing 560037, Bengaluru
+              </div>
+              <h1 class="hero-heading">Find a car wash near you.</h1>
+              <p class="hero-subhead">Book your car wash in just a few taps. Dedicated 30-minute slots with zero wait times.</p>
+              <button class="btn-primary-cta" id="btnHeroFind" onclick="navigateTo('screen-listing')">
+                <span>🔍</span> Find Car Washes
+              </button>
+            </div>
+          </div>
+
+          <!-- Popular Services Section -->
+          <div class="home-section">
+            <div class="section-head">
+              <h2 class="section-title">Popular Services</h2>
+              <span class="section-link" onclick="navigateTo('screen-listing')">View All</span>
+            </div>
+            <div class="services-cards-grid">
+              <div class="service-quick-card" onclick="viewShopDetails('sparkle'); selectDetailService('interior'); startBookingFlow(1);">
+                <div class="service-icon-box">🧽</div>
+                <div class="service-card-title">Interior Cleaning</div>
+                <div class="service-card-price">From ₹299</div>
+              </div>
+              <div class="service-quick-card" onclick="viewShopDetails('sparkle'); selectDetailService('body'); startBookingFlow(1);">
+                <div class="service-icon-box">🚿</div>
+                <div class="service-card-title">Body Wash</div>
+                <div class="service-card-price">From ₹249</div>
+              </div>
+              <div class="service-quick-card" onclick="viewShopDetails('sparkle'); selectDetailService('underbody'); startBookingFlow(1);">
+                <div class="service-icon-box">✨</div>
+                <div class="service-card-title">Underbody Cleaning</div>
+                <div class="service-card-price">From ₹249</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Why WashNearMe? Benefits -->
+          <div class="home-section" style="padding-top: 4px;">
+            <div class="section-head">
+              <h2 class="section-title">Why WashNearMe?</h2>
+            </div>
+            <div class="benefits-list">
+              <div class="benefit-item">
+                <div class="benefit-icon">⚡</div>
+                <div class="benefit-info">
+                  <h4>Easy Booking</h4>
+                  <p>Reserve in under 60 seconds with verified upfront pricing.</p>
+                </div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">⏱️</div>
+                <div class="benefit-info">
+                  <h4>Convenient Time Slots</h4>
+                  <p>Guaranteed 30-minute dedicated bays. Drive in, shine, drive out.</p>
+                </div>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon">🛡️</div>
+                <div class="benefit-info">
+                  <h4>Trusted Car Washes</h4>
+                  <p>Vetted professional detailing centers across 560037 area.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 2: CAR WASH LISTING
+             ==================================================================== -->
+        <section class="screen" id="screen-listing">
+          <div class="listing-header">
+            <div class="back-nav-bar" onclick="navigateTo('screen-home')">
+              <span>← Back to Home</span>
+            </div>
+            <h1 class="screen-headline">Car Washes Near You</h1>
+            <div class="location-indicator-tag">
+              <span>📍 560037, Bengaluru (Brookefield, AECS Layout, Kundalahalli)</span>
+            </div>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="search-filter-section">
+            <div class="search-box-input">
+              <span>🔍</span>
+              <input type="text" id="shopSearchInput" placeholder="Search by car wash name or location..." />
+            </div>
+
+            <div class="filter-pills-row">
+              <button class="filter-pill active" data-filter="all">All Services</button>
+              <button class="filter-pill" data-filter="body">🚿 Body Wash</button>
+              <button class="filter-pill" data-filter="interior">🧽 Interior Cleaning</button>
+              <button class="filter-pill" data-filter="underbody">✨ Underbody Cleaning</button>
+            </div>
+          </div>
+
+          <!-- 5 Demo Shops Cards List -->
+          <div class="shops-cards-list" id="shopsListContainer">
+            <!-- Dynamically populated by app.js -->
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 3: CAR WASH DETAILS
+             ==================================================================== -->
+        <section class="screen" id="screen-details">
+          <div class="shop-hero-banner">
+            <button class="btn-back-floating" onclick="navigateTo('screen-listing')" title="Back to Listing">
+              ←
+            </button>
+            <img id="shopDetailImg" src="assets/sparkle.jpg" alt="Car wash shop preview" />
+          </div>
+
+          <div class="shop-detail-container">
+            <div class="shop-detail-meta">
+              <div class="shop-meta-top">
+                <h1 class="shop-detail-title" id="shopDetailTitle">Sparkle Auto Care</h1>
+                <div class="shop-rating-pill">
+                  <span>⭐</span> <span id="shopDetailRating">4.6</span>
+                </div>
+              </div>
+              <div class="shop-sub-info">
+                <span id="shopDetailReviewsCount">(128 reviews)</span>
+                <span>•</span>
+                <span id="shopDetailDistance">📍 1.2 km away</span>
+              </div>
+              <p class="shop-tagline-quote" id="shopDetailTagline">
+                "Professional car cleaning and detailing services for your everyday drive."
+              </p>
+            </div>
+
+            <!-- Services Section -->
+            <div class="section-head">
+              <h2 class="section-title">Available Services</h2>
+            </div>
+            <div class="services-selection-list" id="shopDetailServicesList">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Customer Reviews Section -->
+            <div class="shop-reviews-box">
+              <div class="section-head" style="margin-bottom: 8px;">
+                <h3 class="section-title" style="font-size: 0.95rem;">Customer Reviews</h3>
+                <span style="font-size: 0.75rem; color: #f59e0b; font-weight: 700;">⭐ 4.6 / 5.0</span>
+              </div>
+              <div id="shopDetailReviewsList">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Sticky Bottom CTA -->
+          <div class="sticky-bottom-action">
+            <div style="flex: 1;">
+              <span class="price-label">Selected Service</span>
+              <div style="font-size: 0.95rem; font-weight: 800; color: #0f172a;" id="detailBarPrice">From ₹349</div>
+            </div>
+            <button class="btn-primary-cta" style="width: auto; padding: 12px 28px;" onclick="startBookingFlow(1)">
+              Book Now →
+            </button>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 4: MULTI-STEP BOOKING SELECTION
+             ==================================================================== -->
+        <section class="screen" id="screen-booking">
+          <!-- Step Progress Bar -->
+          <div class="booking-steps-nav">
+            <div class="step-indicator-wrapper">
+              <div class="step-line"></div>
+              
+              <div class="step-node active" data-step="1" onclick="renderBookingStep(1)">
+                <div class="step-circle">1</div>
+                <span class="step-label">Service</span>
+              </div>
+              <div class="step-node" data-step="2" onclick="renderBookingStep(2)">
+                <div class="step-circle">2</div>
+                <span class="step-label">Vehicle</span>
+              </div>
+              <div class="step-node" data-step="3" onclick="renderBookingStep(3)">
+                <div class="step-circle">3</div>
+                <span class="step-label">Date</span>
+              </div>
+              <div class="step-node" data-step="4" onclick="renderBookingStep(4)">
+                <div class="step-circle">4</div>
+                <span class="step-label">Time</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="booking-body-container">
+            <!-- Back Navigation -->
+            <div class="back-nav-bar" onclick="handleBookingPrev()">
+              <span>← Back</span>
+            </div>
+
+            <!-- STEP 1: SELECT SERVICE -->
+            <div class="booking-step-content" id="bookingStepSection1">
+              <div class="step-instruction-box">
+                <h3>Step 1 — Select Service</h3>
+                <p>Choose the car detailing or wash package for your vehicle.</p>
+              </div>
+              <div class="services-selection-list" id="step1ServicesContainer">
+                <!-- Dynamically rendered -->
+              </div>
+            </div>
+
+            <!-- STEP 2: SELECT VEHICLE -->
+            <div class="booking-step-content" id="bookingStepSection2" style="display: none;">
+              <div class="step-instruction-box">
+                <h3>Step 2 — Select Vehicle</h3>
+                <p>Prices and wash durations adjust according to vehicle size.</p>
+              </div>
+              <div class="vehicles-grid" id="step2VehiclesContainer">
+                <!-- Dynamically rendered (Hatchback, Sedan, Compact SUV, SUV) -->
+              </div>
+            </div>
+
+            <!-- STEP 3: SELECT DATE -->
+            <div class="booking-step-content" id="bookingStepSection3" style="display: none;">
+              <div class="step-instruction-box">
+                <h3>Step 3 — Select Date</h3>
+                <p>Book up to 7 days in advance. Select an upcoming slot date.</p>
+              </div>
+              <div class="dates-scroll-row" id="step3DatesContainer">
+                <!-- Next 7 days cards -->
+              </div>
+            </div>
+
+            <!-- STEP 4: SELECT TIME -->
+            <div class="booking-step-content" id="bookingStepSection4" style="display: none;">
+              <div class="step-instruction-box">
+                <h3>Step 4 — Select Time Slot</h3>
+                <p>Each appointment represents an exclusive 30-minute bay slot.</p>
+              </div>
+
+              <div class="slots-legend">
+                <div class="legend-item">
+                  <div class="legend-dot" style="background: #ffffff; border: 1.5px solid #cbd5e1;"></div>
+                  <span>Available</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" style="background: #0284c7;"></div>
+                  <span>Selected</span>
+                </div>
+                <div class="legend-item">
+                  <div class="legend-dot" style="background: #e2e8f0;"></div>
+                  <span>Booked</span>
+                </div>
+              </div>
+
+              <div class="slots-grid" id="step4TimesContainer">
+                <!-- 30-min time slots -->
+              </div>
+            </div>
+
+            <!-- Live HUD / Breadcrumb Strip: Guaranteeing Customer Always Knows Context -->
+            <div class="live-booking-bar">
+              <div class="live-summary-details">
+                <span class="live-summary-shop" id="hudShopName">Sparkle Auto Care</span>
+                <span class="live-summary-config" id="hudConfigText">Body Wash • Sedan • Sep 29 • 10:30 AM</span>
+              </div>
+              <div class="live-summary-price" id="hudPriceVal">₹349</div>
+            </div>
+
+            <!-- Continue Step Button -->
+            <button class="btn-primary-cta" id="btnBookingNext" style="margin-top: 16px;" onclick="handleBookingNext()">
+              Continue to Step 2 →
+            </button>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 5: BOOKING SUMMARY
+             ==================================================================== -->
+        <section class="screen" id="screen-summary">
+          <div class="summary-container">
+            <div class="back-nav-bar" onclick="navigateTo('screen-booking')">
+              <span>← Edit Booking Options</span>
+            </div>
+
+            <h1 class="screen-headline" style="margin-bottom: 12px;">Your Booking</h1>
+
+            <div class="summary-card">
+              <div class="summary-shop-header">
+                <h3 class="summary-shop-title" id="sumShopName">Sparkle Auto Care</h3>
+                <span class="summary-shop-location" id="sumShopAddress">📍 Plot 42, Brookefield Main Rd, 560037 Bengaluru</span>
+              </div>
+
+              <div class="summary-rows">
+                <div class="summary-row">
+                  <span class="summary-label">Service</span>
+                  <span class="summary-val" id="sumServiceName">Body Wash</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Vehicle</span>
+                  <span class="summary-val" id="sumVehicleName">🚘 Sedan</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Date</span>
+                  <span class="summary-val" id="sumDate">September 29, 2026</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Time</span>
+                  <span class="summary-val" id="sumTimeSlot">10:30 AM – 11:00 AM</span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-row">
+                  <span class="summary-label">Wash Package Rate</span>
+                  <span class="summary-val" id="sumServicePrice">₹349</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Taxes & Bay Fee</span>
+                  <span class="summary-val" style="color: #10b981;">₹0 (Free)</span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-total-row">
+                  <span class="summary-total-label">Total Payable</span>
+                  <span class="summary-total-val" id="sumTotalPrice">₹349</span>
+                </div>
+              </div>
+
+              <!-- Customer Profile Note -->
+              <div class="summary-customer-box">
+                <div class="summary-customer-title">Customer Details</div>
+                <div class="summary-customer-info">Sankar • +91 98765 43210</div>
+                <div style="font-size: 0.72rem; color: #64748b; margin-top: 2px;">Pay at service center upon arrival</div>
+              </div>
+            </div>
+
+            <!-- Confirm Booking CTA -->
+            <button class="btn-primary-cta" id="btnConfirmBooking" onclick="confirmCurrentBooking()">
+              Confirm Booking (₹349) ✓
+            </button>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 6: BOOKING CONFIRMATION
+             ==================================================================== -->
+        <section class="screen" id="screen-confirmation">
+          <div class="confirmation-container">
+            <div class="success-badge-circle">✓</div>
+            <h1 class="confirm-title">Booking Confirmed!</h1>
+            <span class="confirm-booking-id" id="confBookingId">Booking ID: CW10001</span>
+
+            <div class="confirm-ticket-card">
+              <div class="confirm-ticket-header">
+                <div class="confirm-ticket-shop" id="confShopName">Sparkle Auto Care</div>
+                <span style="font-size: 0.72rem; color: #64748b;">📍 560037, Bengaluru</span>
+              </div>
+
+              <div class="summary-rows">
+                <div class="summary-row">
+                  <span class="summary-label">Service</span>
+                  <span class="summary-val" id="confServiceName">Body Wash</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Vehicle</span>
+                  <span class="summary-val" id="confVehicleName">🚘 Sedan</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Date</span>
+                  <span class="summary-val" id="confDate">September 29, 2026</span>
+                </div>
+                <div class="summary-row">
+                  <span class="summary-label">Time</span>
+                  <span class="summary-val" id="confTimeSlot">10:30 AM – 11:00 AM</span>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="summary-row">
+                  <span class="summary-total-label" style="font-size: 0.9rem;">Total</span>
+                  <span class="summary-val" id="confTotalPrice" style="color: #0284c7; font-size: 1.1rem; font-weight: 800;">₹349</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 14px; background: #ecfdf5; border-radius: 8px; padding: 10px; font-size: 0.74rem; color: #065f46;">
+                ℹ️ <strong>Arrival Reminder:</strong> Please arrive 5 minutes before your slot. Bay 2 is reserved for your vehicle.
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="confirm-actions-row">
+              <button class="btn-primary-cta" onclick="navigateTo('screen-bookings')">
+                View My Bookings
+              </button>
+              <button class="btn-secondary-action" onclick="navigateTo('screen-home')">
+                Back to Home
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 7: MY BOOKINGS
+             ==================================================================== -->
+        <section class="screen" id="screen-bookings">
+          <div class="listing-header">
+            <h1 class="screen-headline">My Bookings</h1>
+            <span style="font-size: 0.76rem; color: #64748b;">Manage and view your scheduled car wash reservations</span>
+          </div>
+
+          <!-- Tabs: Upcoming vs Past -->
+          <div class="bookings-tabs-nav">
+            <button class="booking-tab-btn active" id="tabUpcomingBtn" onclick="renderCustomerBookings('upcoming')">
+              Upcoming Bookings
+            </button>
+            <button class="booking-tab-btn" id="tabPastBtn" onclick="renderCustomerBookings('past')">
+              Past Bookings
+            </button>
+          </div>
+
+          <div class="my-bookings-list" id="customerBookingsContainer">
+            <!-- Dynamically populated -->
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 8: CUSTOMER PROFILE
+             ==================================================================== -->
+        <section class="screen" id="screen-profile">
+          <div class="profile-container">
+            <div class="profile-user-card">
+              <div class="profile-avatar-circle">S</div>
+              <h2 class="profile-user-name">Sankar</h2>
+              <div class="profile-meta-list">
+                <span>📞 +91 98765 43210</span>
+                <span>✉️ sankar@example.com</span>
+                <span>📍 560037, Bengaluru</span>
+              </div>
+            </div>
+
+            <div class="profile-options-menu">
+              <div class="menu-item-row" onclick="navigateTo('screen-bookings')">
+                <div class="menu-item-left">
+                  <div class="menu-icon-box">📅</div>
+                  <span>My Bookings</span>
+                </div>
+                <span>→</span>
+              </div>
+              <div class="menu-item-row" onclick="showToast('Saved Shops: Sparkle Auto Care, AquaShine')">
+                <div class="menu-item-left">
+                  <div class="menu-icon-box">⭐</div>
+                  <span>Saved Shops</span>
+                </div>
+                <span>→</span>
+              </div>
+              <div class="menu-item-row" onclick="showToast('Vehicle Details: Sedan (KA-03-MB-4210)')">
+                <div class="menu-item-left">
+                  <div class="menu-icon-box">🚘</div>
+                  <span>Vehicle Details</span>
+                </div>
+                <span>→</span>
+              </div>
+              <div class="menu-item-row" onclick="showToast('Support Hotline: +91 80 4000 1234')">
+                <div class="menu-item-left">
+                  <div class="menu-icon-box">💬</div>
+                  <span>Help & Support</span>
+                </div>
+                <span>→</span>
+              </div>
+              <div class="menu-item-row" style="background: #f0f9ff; color: #0284c7;" onclick="navigateTo('screen-owner-login')">
+                <div class="menu-item-left">
+                  <div class="menu-icon-box" style="background: #e0f2fe;">🏪</div>
+                  <span style="font-weight: 700;">Switch to Owner Demo</span>
+                </div>
+                <span>→</span>
+              </div>
+              <div class="menu-item-row" style="color: #ef4444;" onclick="showToast('Prototype logout simulated')">
+                <div class="menu-item-left">
+                  <div class="menu-icon-box" style="background: #fee2e2; color: #ef4444;">🚪</div>
+                  <span>Logout</span>
+                </div>
+                <span>→</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 9: OWNER LOGIN (Partner Portal)
+             ==================================================================== -->
+        <section class="screen" id="screen-owner-login">
+          <div class="owner-login-container">
+            <div class="partner-logo-box">🏪</div>
+            <h1 class="screen-headline" style="margin-bottom: 4px;">Car Wash Partner Login</h1>
+            <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 20px;">Manage daily shop schedule, bay availability & revenue</p>
+
+            <div class="owner-login-card">
+              <div class="form-group">
+                <label class="form-label">Partner Email Address</label>
+                <input type="email" class="form-control-input" value="partner@sparkleautocare.in" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control-input" value="••••••••" />
+              </div>
+
+              <button class="btn-primary-cta" style="margin-top: 6px;" onclick="navigateTo('screen-owner-dashboard')">
+                Partner Login
+              </button>
+
+              <button class="btn-demo-instant" onclick="navigateTo('screen-owner-dashboard')">
+                <span>⚡</span> 1-Click Instant Demo Login
+              </button>
+            </div>
+
+            <div style="text-align: center; margin-top: 18px;">
+              <button class="back-nav-bar" style="margin: 0 auto;" onclick="navigateTo('screen-home')">
+                ← Return to Customer App
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 10: OWNER DASHBOARD
+             ==================================================================== -->
+        <section class="screen" id="screen-owner-dashboard">
+          <div class="owner-header-bar">
+            <div>
+              <div class="owner-shop-title">Sparkle Auto Care</div>
+              <span style="font-size: 0.72rem; color: #94a3b8;">📍 Brookefield Main Rd, 560037</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <span class="owner-badge-tag">Partner Portal</span>
+              <button style="background: rgba(255,255,255,0.15); border: none; color: white; border-radius: 6px; padding: 4px 8px; font-size: 0.7rem; cursor: pointer;" onclick="navigateTo('screen-home')">
+                Exit
+              </button>
+            </div>
+          </div>
+
+          <div class="dashboard-container">
+            <!-- 4 Metric Cards -->
+            <div class="metrics-summary-grid">
+              <div class="metric-stat-card">
+                <span class="metric-title">Today's Bookings</span>
+                <div class="metric-value">8</div>
+              </div>
+              <div class="metric-stat-card">
+                <span class="metric-title">Upcoming</span>
+                <div class="metric-value">14</div>
+              </div>
+              <div class="metric-stat-card">
+                <span class="metric-title">Completed</span>
+                <div class="metric-value">27</div>
+              </div>
+              <div class="metric-stat-card">
+                <span class="metric-title">Revenue</span>
+                <div class="metric-value" style="color: #10b981;">₹8,450</div>
+              </div>
+            </div>
+
+            <!-- Today's Schedule Timeline -->
+            <div class="schedule-timeline-box">
+              <div class="section-head" style="margin-bottom: 10px;">
+                <h3 class="section-title" style="font-size: 1.05rem;">Today's Schedule</h3>
+                <span class="section-link" onclick="navigateTo('screen-owner-bookings')">View All</span>
+              </div>
+              
+              <div id="ownerTimelineContainer">
+                <!-- Dynamically populated from state.ownerSchedule -->
+              </div>
+            </div>
+
+            <!-- Quick Action Row -->
+            <div style="margin-top: 16px; display: flex; gap: 10px;">
+              <button class="btn-primary-cta" onclick="navigateTo('screen-owner-bookings')">
+                Manage All Bookings →
+              </button>
+              <button class="btn-secondary-action" onclick="navigateTo('screen-home')">
+                Customer View
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================================
+             SCREEN 11: OWNER BOOKINGS
+             ==================================================================== -->
+        <section class="screen" id="screen-owner-bookings">
+          <div class="owner-header-bar">
+            <div>
+              <div class="owner-shop-title">Manage Bookings</div>
+              <span style="font-size: 0.72rem; color: #94a3b8;">Sparkle Auto Care (560037)</span>
+            </div>
+            <button style="background: rgba(255,255,255,0.15); border: none; color: white; border-radius: 6px; padding: 4px 8px; font-size: 0.7rem; cursor: pointer;" onclick="navigateTo('screen-owner-dashboard')">
+              ← Dashboard
+            </button>
+          </div>
+
+          <div class="owner-bookings-container">
+            <div class="owner-filter-tabs">
+              <button class="owner-tab-chip active" id="ownerTabToday" onclick="renderOwnerBookings('today')">
+                Today's Bookings (8)
+              </button>
+              <button class="owner-tab-chip" id="ownerTabUpcoming" onclick="renderOwnerBookings('upcoming')">
+                Upcoming Bookings (14)
+              </button>
+              <button class="owner-tab-chip" id="ownerTabCompleted" onclick="renderOwnerBookings('completed')">
+                Completed Bookings (27)
+              </button>
+            </div>
+
+            <div id="ownerBookingsListContainer">
+              <!-- Dynamically populated by renderOwnerBookings -->
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /.app-viewport -->
+
+      <!-- CUSTOMER BOTTOM TAB BAR -->
+      <nav class="app-bottom-nav" id="appBottomNav">
+        <button class="nav-tab-item active" id="navBtnHome" onclick="navigateTo('screen-home')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>Home</span>
+        </button>
+        <button class="nav-tab-item" id="navBtnExplore" onclick="navigateTo('screen-listing')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span>Explore</span>
+        </button>
+        <button class="nav-tab-item" id="navBtnBookings" onclick="navigateTo('screen-bookings')">
+          <span class="badge-counter" id="navBadgeCount">1</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <span>Bookings</span>
+        </button>
+        <button class="nav-tab-item" id="navBtnProfile" onclick="navigateTo('screen-profile')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>Profile</span>
+        </button>
+      </nav>
+
+      <!-- Bottom Phone Home Indicator -->
+      <div class="phone-home-indicator"></div>
+
+    </div><!-- /.phone-frame -->
+  </main>
+
+  <!-- Interactive Toast Notification -->
+  <aside class="toast-notice" id="toastNotice" role="status" aria-live="polite">
+    <span>✨</span> Action triggered
+  </aside>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
